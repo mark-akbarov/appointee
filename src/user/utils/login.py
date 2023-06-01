@@ -1,8 +1,10 @@
 from django.contrib.auth import authenticate
+
 from rest_framework import status
 from rest_framework.response import Response
 from rest_framework.authtoken.models import Token
-from user.models import User
+
+from user.models.base import BaseUser
 
 
 def login(username: str, password, is_superuser=False):
@@ -10,10 +12,10 @@ def login(username: str, password, is_superuser=False):
     activate_error = 'please_activate_your_account'
 
     try:
-        if '@' in username and User.objects.filter(email=username).exists():
-            user = User.objects.get(email=username)
+        if '@' in username and BaseUser.objects.filter(email=username).exists():
+            user = BaseUser.objects.get(email=username)
         else:
-            user = User.objects.get(username=username)
+            user = BaseUser.objects.get(username=username)
         if user.is_active is False:
             return Response({
                 'detail': activate_error,
@@ -26,5 +28,5 @@ def login(username: str, password, is_superuser=False):
             return Response({'detail': 'access denied'}, status=status.HTTP_400_BAD_REQUEST)
         token, _ = Token.objects.get_or_create(user=user)
         return Response({'token': token.key}, status=status.HTTP_200_OK)
-    except User.DoesNotExist:
+    except BaseUser.DoesNotExist:
         return Response({'detail': invalid_username_or_password}, status=status.HTTP_400_BAD_REQUEST)

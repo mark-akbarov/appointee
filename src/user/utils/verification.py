@@ -4,7 +4,7 @@ from rest_framework.authtoken.models import Token
 from rest_framework.response import Response
 
 from core.utils.email import send_email
-from ..models import VerifyUser, User
+from ..models import VerifyUser, BaseUser
 
 
 def send_user_verify_code(user, is_forgot_password=False):
@@ -56,8 +56,8 @@ def check_verify_forgot_password_code(email, code):
 
 def re_send_verify_user_code(email):
     try:
-        user = User.objects.get(email=email)
+        user = BaseUser.objects.get(email=email)
         send_user_verify_code(user)
         return Response({'detail': 'successfully send new code'})
-    except User.DoesNotExist:
+    except BaseUser.DoesNotExist:
         return Response({'detail': 'username does not exist'}, status=status.HTTP_400_BAD_REQUEST)

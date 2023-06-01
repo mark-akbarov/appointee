@@ -1,19 +1,19 @@
 from rest_framework.response import Response
 from rest_framework import status
-from user.models import User
+from user.models import BaseUser
 from user.utils.verification import send_user_verify_code
 
 
 def check_username(username: str) -> bool:
-    user = User.objects.filter(username__iexact=username, is_active=True).exists()
+    user = BaseUser.objects.filter(username__iexact=username, is_active=True).exists()
     return Response(data={'exists': user})
 
 
 def signup(username: str, email: str, phone_number: str, password):
-    check_email = User.objects.filter(username__iexact=username, is_active=True).exists()
+    check_email = BaseUser.objects.filter(username__iexact=username, is_active=True).exists()
     if check_email is True:
         return Response({'detail': 'username already exists'}, status=status.HTTP_400_BAD_REQUEST)
-    check_email = User.objects.filter(email=email, is_active=True).exists()
+    check_email = BaseUser.objects.filter(email=email, is_active=True).exists()
     if check_email is True:
         return Response({'detail': 'email already exists'}, status=status.HTTP_400_BAD_REQUEST)
     user = create_user(
@@ -32,7 +32,7 @@ def create_user(
         phone_number: str,
         password=None
 ):
-    user = User.objects.create(
+    user = BaseUser.objects.create(
         email=email,
         phone_number=phone_number,
         username=username,
